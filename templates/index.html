@@ -7,6 +7,7 @@
       integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
       crossorigin="anonymous"
     />
+    <script type="text/javascript" src="{{ url_for('static', filename='js/scanner.js') }}"></script>
 </head>
 <body>
     <table class="table">
@@ -14,6 +15,7 @@
             <tr>
                 <th>URL</th>
                 <th>Health</th>
+                <th>Update</th>
             </tr>
         </thead>
         <tbody>
@@ -21,6 +23,7 @@
             <tr>
                 <td>{{ url["url"] }}</td>
                 <td>{{ url["health"] }}</td>
+                <td><button class="update-health" data-url="{{ url["url"] }}" >update</button></td>
             </tr>
             {% endfor %}
         </tbody>
