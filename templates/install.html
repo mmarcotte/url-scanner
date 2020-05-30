@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <p>Hello shall we install this?</p>
+    <ul>
+        {% for command in sqlCommands %}
+            <li>
+                {{ command }}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

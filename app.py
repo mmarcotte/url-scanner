@@ -1,6 +1,12 @@
+import os
 import requests
-from flask import Flask, render_template, request, session, jsonify
-from flask_session import Session
+from flask import Flask, render_template, request, jsonify
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
+print(os.getenv("DATABASE_URL"))
+engine = create_engine(os.getenv("DATABASE_URL"))
+db = scoped_session(sessionmaker(bind=engine))
 
 app = Flask(__name__)
 
@@ -34,5 +40,20 @@ def scan(id):
 # need to add a URL
 # need to remove a URL
 
+@app.route("/install")
+def install():
+    # load install.sql
+    f = open('install.sql', 'r')
+    sqlFile = f.read()
+    f.close()
+    sqlCommands = sqlFile.split(';')
+
+    for command in sqlCommands:
+        if(command.strip() != ''):
+            db.execute(command)
+            db.commit()
+
+    # run the commands
+    return render_template("install.html", sqlCommands=sqlCommands)
 
 
