@@ -16,8 +16,8 @@ function checkHealth(id) {
         .then(response => response.json())
         .then(data => {
             var obj = document.getElementById('health-' + id)
-            obj.innerHTML = data.health
-            obj.className = 'health health-' + data.health
+            obj.innerHTML = data.status_code
+            obj.className = 'health health-' + data.status_code
         })
         .catch(err => console.log(err))
 }

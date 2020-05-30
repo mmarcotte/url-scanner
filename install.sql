@@ -1,7 +1,11 @@
 CREATE TABLE urls (
     id SERIAL PRIMARY KEY,
-    url VARCHAR UNIQUE NOT NULL
+    url VARCHAR UNIQUE NOT NULL,
+    status_code INTEGER NULL,
+    last_update TIMESTAMP NULL,
+    headers JSON NULL
 );
+
 CREATE TABLE health_checks (
     id SERIAL PRIMARY KEY,
     tstamp TIMESTAMP NOT NULL,

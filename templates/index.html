@@ -6,6 +6,7 @@
         <tr>
             <th>URL</th>
             <th>Health</th>
+            <th>Last Update</th>
             <th>Update</th>
         </tr>
     </thead>
@@ -13,7 +14,8 @@
         {% for url in urls %}
         <tr>
             <td>{{ url["url"] }}</td>
-            <td><span id="health-{{ url["id"] }}" class="health health-{{ url["health"] }}">{{ url["health"] }}</span></td>
+            <td><span id="health-{{ url["id"] }}" class="health health-{{ url["status_code"] }}">{{ url["status_code"] }}</span></td>
+            <td>{{ url["last_update"] }}</td>
             <td><button class="update-health" data-id="{{ url['id'] }}" data-url="{{ url['url'] }}" >update</button></td>
         </tr>
         {% endfor %}
