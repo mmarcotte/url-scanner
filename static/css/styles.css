@@ -1,0 +1,13 @@
+html {
+    box-sizing: border-box;
+}
+.health { 
+    padding: 0.3em 1em;
+    margin: 1px;
+    display: inline-block;
+}
+.health-200 { background-color: green; color: #fff; }
+.health-404 { background-color: red; color: #fff; }
+.health-302, .health-301 { background-color: gold; color: #222222 }
+
+.table td { vertical-align: middle; }

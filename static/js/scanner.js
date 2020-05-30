@@ -6,14 +6,18 @@ document.addEventListener("DOMContentLoaded", function(){
     for(var i = 0; i < objs.length; i++) {
         objs[i].addEventListener("click", function(e){
             e.preventDefault();
-            scanUrl(event.target.dataset.url)
+            checkHealth(event.target.dataset.id)
       });
     }
 });
 
-function scanUrl(url) {
-    fetch('http://127.0.0.1:5000/api/scan?url=' + encodeURIComponent(url))
+function checkHealth(id) {
+    fetch('http://127.0.0.1:5000/api/scan/' + id)
         .then(response => response.json())
-        .then(data => console.log(data))
+        .then(data => {
+            var obj = document.getElementById('health-' + id)
+            obj.innerHTML = data.health
+            obj.className = 'health health-' + data.health
+        })
         .catch(err => console.log(err))
 }

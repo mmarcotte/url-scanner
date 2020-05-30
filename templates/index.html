@@ -7,6 +7,7 @@
       integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
       crossorigin="anonymous"
     />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}" />
     <script type="text/javascript" src="{{ url_for('static', filename='js/scanner.js') }}"></script>
 </head>
 <body>
@@ -22,8 +23,8 @@
             {% for url in urls %}
             <tr>
                 <td>{{ url["url"] }}</td>
-                <td>{{ url["health"] }}</td>
-                <td><button class="update-health" data-url="{{ url["url"] }}" >update</button></td>
+                <td><span id="health-{{ url["id"] }}" class="health health-{{ url["health"] }}">{{ url["health"] }}</span></td>
+                <td><button class="update-health" data-id="{{ url['id'] }}" data-url="{{ url['url'] }}" >update</button></td>
             </tr>
             {% endfor %}
         </tbody>
