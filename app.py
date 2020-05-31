@@ -14,17 +14,20 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    # show a table of urls
-    # show their health
     urls = get_urls()
     return render_template("index.html", urls=urls)
 
-@app.route("/api/scan/<int:id>")
+@app.route("/api/url/<int:id>/scan")
 def scan(id):
     # ascertain the URL, and then make a call to check its health
     row = db.execute('SELECT url FROM urls WHERE id = :id', {"id": id}).fetchone()
-    res = requests.get(row.url)
+    if row is None:
+        return jsonify({"error": "Could not locate URL"}), 422
 
+    headers = {
+        'User-Agent': 'My User Agent 1.0'
+    }
+    res = requests.get(row.url, headers=headers, allow_redirects=False)
     now = datetime.now()
 
     # save the status update for this URL so we know to show it next time
@@ -41,10 +44,27 @@ def scan(id):
     })
     db.commit()
 
+    print(json.dumps(dict(res.headers)))
+
     return jsonify({
         "status_code": res.status_code,
         "last_update": now.strftime("%m/%d/%Y %H:%M:%S")
     })
+
+@app.route('/api/url/<int:id>', methods=['DELETE'])
+def url_api(id):
+    if request.method == 'DELETE':
+        # Make sure url exists
+        
+        if db.execute('SELECT url FROM urls WHERE id = :id', {"id": id}).rowcount == 0:
+            return jsonify({"error": "Invalid url_id"}), 422
+
+        # Remove URL
+        print({"id": id})
+        db.execute('DELETE FROM health_checks WHERE url_id = :url_id', {"url_id": id})
+        db.execute('DELETE FROM urls WHERE id = :id', {"id": id})
+        db.commit()
+        return jsonify({"message": "URL deleted"})
 
 @app.route('/add', methods=["POST"])
 def add():
@@ -74,4 +94,4 @@ def install():
     return render_template("install.html", sqlCommands=sqlCommands)
 
 def get_urls():
-    return db.execute("""SELECT id, url, status_code, last_update, TO_CHAR(last_update, 'MM/DD/YYYY HH24:MI:SS') last_update_formatted FROM urls ORDER BY last_update DESC""").fetchall()
+    return db.execute("""SELECT id, url, headers, status_code, last_update, TO_CHAR(last_update, 'MM/DD/YYYY HH24:MI:SS') last_update_formatted FROM urls ORDER BY last_update DESC""").fetchall()

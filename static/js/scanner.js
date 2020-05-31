@@ -8,12 +8,11 @@ document.addEventListener("DOMContentLoaded", function(){
     for(var i = 0; i < objs.length; i++) {
         objs[i].addEventListener("click", function(e){
             e.preventDefault();
-            checkHealth(event.target.dataset.id)
+            checkHealth(e.target.dataset.id)
       });
     }
 
-    var checkAllButton = document.getElementById('scan-all')
-    .addEventListener('click', function(e) {
+    document.getElementById('scan-all').addEventListener('click', function(e) {
         e.preventDefault()
         if (running) {
             running = false
@@ -27,7 +26,27 @@ document.addEventListener("DOMContentLoaded", function(){
         }
     })
 
+    var deleteButtons = document.getElementsByClassName('js-remove')
+    for(var i = 0; i < deleteButtons.length; i++) {
+        deleteButtons[i].addEventListener('click', removeUrl)
+    }
 });
+
+function removeUrl(e) {
+    e.preventDefault()
+    if(!confirm('Are you sure you want to remove this URL?'))
+        return;
+    var id = e.target.dataset.id
+    document.getElementById('row-' + id).remove()
+    fetch('http://127.0.0.1:5000/api/url/' + id, {method: 'DELETE'})
+        .then(result => result.json())
+        .then(data => {
+            console.log(data)
+            // var messageContainer = document.getElementById('message')
+            // messageContainer.classList.remove('hidden')
+        })
+        .catch(err => {})
+}
 
 function checkAll() {
     var currentIndex = 0;
@@ -55,7 +74,7 @@ function checkAll() {
 
 function checkHealth(id) {
     document.getElementById('row-' + id).className = 'scanning'
-    return fetch('http://127.0.0.1:5000/api/scan/' + id)
+    return fetch('http://127.0.0.1:5000/api/url/' + id + '/scan')
         .then(response => response.json())
         .then(data => {
             // update status

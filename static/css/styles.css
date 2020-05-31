@@ -21,12 +21,12 @@ main {
     background-color: #cccccc;
 }
 
-td.scan .fa {
+.loading {
     display: none;
 }
 tr.scanning td button.update-health {
     display: none;
 }
-tr.scanning td .fa-spin {
-    display: inline-block;
+tr.scanning td div.loading {
+    display: block;
 }

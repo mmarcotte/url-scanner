@@ -10,10 +10,11 @@
 </div>
 {% endif %}
 
-<button id="scan-all" class="btm">
-    Scan All
-</button>
-
+<div class="form-group">
+    <button id="scan-all" class="btn btn-primary">
+        Scan All
+    </button>
+</div>
 
 <table class="table">
     <thead>
@@ -22,6 +23,7 @@
             <th>Health</th>
             <th>Last Update</th>
             <th>Update</th>
+            <th>Remove</th>
         </tr>
     </thead>
     <tbody>
@@ -30,15 +32,26 @@
             <td>
                 <p>{{ url["url"] }}</p>
                 {%if (url["status_code"] == 301 or url["status_code"] == 302) %}
-                    <p><i class="fa fa-arrow-right"></i> {{ url["headers"] }}</p>
+                    <p><i class="fa fa-arrow-right"></i> {{ url["headers"]["Location"] }}</p>
                 {% endif %}
             </td>
-            <td><span id="health-{{ url['id'] }}" class="health health-{{ url["status_code"] }}">{{ url["status_code"] }}</span></td>
+            <td><span id="health-{{ url['id'] }}" class="health health-{{ url['status_code'] }}">{{ url["status_code"] }}</span></td>
             <td id="last-update-{{ url['id'] }}">{{ url["last_update_formatted"] }}</td>
-            <td class="scan">
-                <button class="update-health" data-id="{{ url['id'] }}" data-url="{{ url['url'] }}" >update</button>
-                <i class="fa fa-refresh fa-spin fa-2x fa-fw"></i>
-                <span class="sr-only">Loading...</span>
+            <td class="scan centered">
+                <button class="btn btn-secondary update-health" data-id="{{ url['id'] }}" data-url="{{ url['url'] }}">
+                    <i class="fa fa-refresh"></i>
+                    Update
+                </button>
+                <div class="loading">
+                    <i class="fa fa-refresh fa-spin fa-2x fa-fw"></i>
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </td>
+            <td class="centered">
+                <button class="btn btn-danger js-remove" data-id="{{ url['id'] }}">
+                    <i class="fa fa-trash"></i> 
+                    Remove
+                </button>
             </td>
         </tr>
         {% endfor %}
@@ -53,4 +66,5 @@
     </div>
     <button class="btn btn-primary">Add</button>
 </form>
+<button class="btn">what the</button>
 {% endblock %}
