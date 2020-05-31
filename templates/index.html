@@ -1,6 +1,11 @@
 {% extends "layout.html" %}
 
 {% block body %}
+
+<button id="scan-all" class="btm">
+    Scan All
+</button>
+
 <table class="table">
     <thead>
         <tr>
@@ -12,11 +17,15 @@
     </thead>
     <tbody>
         {% for url in urls %}
-        <tr>
+        <tr id="row-{{ url["id"] }}" class="url-row" data-id="{{ url['id'] }}">
             <td>{{ url["url"] }}</td>
             <td><span id="health-{{ url["id"] }}" class="health health-{{ url["status_code"] }}">{{ url["status_code"] }}</span></td>
             <td>{{ url["last_update"] }}</td>
-            <td><button class="update-health" data-id="{{ url['id'] }}" data-url="{{ url['url'] }}" >update</button></td>
+            <td class="scan">
+                <button class="update-health" data-id="{{ url['id'] }}" data-url="{{ url['url'] }}" >update</button>
+                <i class="fa fa-refresh fa-spin fa-2x fa-fw"></i>
+                <span class="sr-only">Loading...</span>
+            </td>
         </tr>
         {% endfor %}
     </tbody>
