@@ -19,24 +19,25 @@ def index():
 
 @app.route("/api/url/<int:id>/scan")
 def scan(id):
-    # ascertain the URL, and then make a call to check its health
+    # get the URL, and make sure it exists
     row = db.execute('SELECT url FROM urls WHERE id = :id', {"id": id}).fetchone()
     if row is None:
         return jsonify({"error": "Could not locate URL"}), 422
 
+    # make the call, and supply a friendly user agent
     headers = {
         'User-Agent': 'My User Agent 1.0'
     }
-    res = requests.get(row.url, headers=headers, allow_redirects=False)
-    now = datetime.now()
+    res = requests.get(row.url, headers=headers, allow_redirects=False) # allow_redirects=False to catch 30x status_codes
 
-    # save the status update for this URL so we know to show it next time
+    # save the status update for the history
     db.execute('INSERT INTO health_checks (tstamp, status_code, headers, url_id) VALUES (NOW(), :status_code, :headers, :url_id)', {
         "status_code": res.status_code,
         "headers": json.dumps(dict(res.headers)),
         "url_id": id
     })
 
+    # update our urls table with the latest
     db.execute('UPDATE urls SET status_code = :status_code, headers = :headers, last_update = NOW() WHERE id = :id', {
         "status_code": res.status_code,
         "headers": json.dumps(dict(res.headers)),
@@ -44,23 +45,25 @@ def scan(id):
     })
     db.commit()
 
-    print(json.dumps(dict(res.headers)))
-
-    return jsonify({
+    # respond with some helpful json
+    now = datetime.now()
+    response = {
         "status_code": res.status_code,
         "last_update": now.strftime("%m/%d/%Y %H:%M:%S")
-    })
+    }
+    if (res.status_code == 302 or res.status_code == 301) and "Location" in dict(res.headers):
+        response["redirect_url"] = res.headers["Location"]
+
+    return jsonify(response)
 
 @app.route('/api/url/<int:id>', methods=['DELETE'])
 def url_api(id):
     if request.method == 'DELETE':
         # Make sure url exists
-        
         if db.execute('SELECT url FROM urls WHERE id = :id', {"id": id}).rowcount == 0:
             return jsonify({"error": "Invalid url_id"}), 422
 
-        # Remove URL
-        print({"id": id})
+        # Remove URL from DB
         db.execute('DELETE FROM health_checks WHERE url_id = :url_id', {"url_id": id})
         db.execute('DELETE FROM urls WHERE id = :id', {"id": id})
         db.commit()
@@ -68,16 +71,14 @@ def url_api(id):
 
 @app.route('/add', methods=["POST"])
 def add():
+    # Add the supplied URL
     url = request.form.get("url")
     db.execute("INSERT INTO urls (url) VALUES (:url)", {"url":url})
     db.commit()
     urls = get_urls()
     return render_template("index.html", urls=urls, message="New URL successfully added")
 
-# need to remove a URL
-
-
-@app.route("/install")
+@app.route("/install") # handy route to install DB tables
 def install():
     # load install.sql
     f = open('install.sql', 'r')
@@ -93,5 +94,7 @@ def install():
     # run the commands
     return render_template("install.html", sqlCommands=sqlCommands)
 
+# re-usable query for getting all of the URLS
 def get_urls():
+    # do not understand why this requires three quotes :(
     return db.execute("""SELECT id, url, headers, status_code, last_update, TO_CHAR(last_update, 'MM/DD/YYYY HH24:MI:SS') last_update_formatted FROM urls ORDER BY last_update DESC""").fetchall()
