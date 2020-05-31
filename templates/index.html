@@ -2,9 +2,18 @@
 
 {% block body %}
 
+<h2>Current URLs</h2>
+
+{% if message %}
+<div class="alert alert-primary" role="alert">
+    {{ message }}
+</div>
+{% endif %}
+
 <button id="scan-all" class="btm">
     Scan All
 </button>
+
 
 <table class="table">
     <thead>
@@ -35,4 +44,13 @@
         {% endfor %}
     </tbody>
 </table>
+
+<h2>Add New URL</h2>
+<form method="POST" action="{{ url_for('add') }}">
+    <div class="form-group">
+        <label for="newUrl">New URL</label>
+        <input id="newUrl" type="text" name="url" value="" class="form-control" placeholder="Add new URL" />
+    </div>
+    <button class="btn btn-primary">Add</button>
+</form>
 {% endblock %}

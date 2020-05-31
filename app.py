@@ -12,12 +12,11 @@ db = scoped_session(sessionmaker(bind=engine))
 
 app = Flask(__name__)
 
-urls = db.execute("""SELECT id, url, status_code, last_update, TO_CHAR(last_update, 'MM/DD/YYYY HH24:MI:SS') last_update_formatted FROM urls ORDER BY last_update DESC""").fetchall()
-
 @app.route("/")
 def index():
     # show a table of urls
     # show their health
+    urls = get_urls()
     return render_template("index.html", urls=urls)
 
 @app.route("/api/scan/<int:id>")
@@ -47,8 +46,16 @@ def scan(id):
         "last_update": now.strftime("%m/%d/%Y %H:%M:%S")
     })
 
-# need to add a URL
+@app.route('/add', methods=["POST"])
+def add():
+    url = request.form.get("url")
+    db.execute("INSERT INTO urls (url) VALUES (:url)", {"url":url})
+    db.commit()
+    urls = get_urls()
+    return render_template("index.html", urls=urls, message="New URL successfully added")
+
 # need to remove a URL
+
 
 @app.route("/install")
 def install():
@@ -66,4 +73,5 @@ def install():
     # run the commands
     return render_template("install.html", sqlCommands=sqlCommands)
 
-
+def get_urls():
+    return db.execute("""SELECT id, url, status_code, last_update, TO_CHAR(last_update, 'MM/DD/YYYY HH24:MI:SS') last_update_formatted FROM urls ORDER BY last_update DESC""").fetchall()
