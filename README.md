@@ -11,6 +11,10 @@ This simple app is to help me monitor the health of a collection of URLs. The go
     ```
     export FLASK_APP=app.py
     ```
+1. Install requirements
+    ```
+    pip3 install -r requirements.txt
+    ```
 1. Run the application
     ```
     flask run
