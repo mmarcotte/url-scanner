@@ -61,10 +61,8 @@
 <h2>Add New URL</h2>
 <form method="POST" action="{{ url_for('add') }}">
     <div class="form-group">
-        <label for="newUrl">New URL</label>
-        <input id="newUrl" type="text" name="url" value="" class="form-control" placeholder="Add new URL" />
+        <input id="newUrl" type="text" name="url" value="" class="form-control" placeholder="http://example.com" />
     </div>
     <button class="btn btn-primary">Add</button>
 </form>
-<button class="btn">what the</button>
 {% endblock %}
