@@ -1,4 +1,5 @@
 var tim
+var running = false
 
 document.addEventListener("DOMContentLoaded", function(){
     
@@ -11,16 +12,17 @@ document.addEventListener("DOMContentLoaded", function(){
       });
     }
 
-    document.getElementById('scan-all').addEventListener('click', function(e) {
-
+    var checkAllButton = document.getElementById('scan-all')
+    .addEventListener('click', function(e) {
         e.preventDefault()
-        if (e.target.className === 'running') {
-            document.getElementById('scan-all').innerHTML = 'Scan All'
-            document.getElementById('scan-all').className = 'btn'
+        if (running) {
+            running = false
             clearInterval(tim)
+            this.innerHTML = 'Check All '
         } else {
-            document.getElementById('scan-all').innerHTML = 'Stop'
-            document.getElementById('scan-all').className = 'btn running'
+            running = true
+            this.classList.add('running')
+            this.innerHTML = 'Stop'
             checkAll()
         }
     })
@@ -36,8 +38,10 @@ function checkAll() {
     }
     
     function checkNext() {
+        if (!running) return; // stop!
         checkHealth(ids[(currentIndex % ids.length)])
             .then(() => {
+                if(!running) return; // stop!
                 currentIndex++
                 tim = setTimeout(checkNext, 1000)
             })
@@ -54,9 +58,15 @@ function checkHealth(id) {
     return fetch('http://127.0.0.1:5000/api/scan/' + id)
         .then(response => response.json())
         .then(data => {
-            var obj = document.getElementById('health-' + id)
-            obj.innerHTML = data.status_code
-            obj.className = 'health health-' + data.status_code
+            // update status
+            var status = document.getElementById('health-' + id)
+            status.innerHTML = data.status_code
+            status.className = 'health health-' + data.status_code
+
+            // update timestamp
+            var tstamp = document.getElementById('last-update-' + id)
+            tstamp.innerHTML = data.last_update
+
             document.getElementById('row-' + id).className = 'ready'
         })
 }

@@ -1,6 +1,7 @@
 import os
 import requests
 import json
+from datetime import datetime
 from flask import Flask, render_template, request, jsonify
 
 from sqlalchemy import create_engine
@@ -11,7 +12,7 @@ db = scoped_session(sessionmaker(bind=engine))
 
 app = Flask(__name__)
 
-urls = db.execute('SELECT * FROM urls ORDER BY last_update DESC').fetchall()
+urls = db.execute("""SELECT id, url, status_code, last_update, TO_CHAR(last_update, 'MM/DD/YYYY HH24:MI:SS') last_update_formatted FROM urls ORDER BY last_update DESC""").fetchall()
 
 @app.route("/")
 def index():
@@ -24,6 +25,8 @@ def scan(id):
     # ascertain the URL, and then make a call to check its health
     row = db.execute('SELECT url FROM urls WHERE id = :id', {"id": id}).fetchone()
     res = requests.get(row.url)
+
+    now = datetime.now()
 
     # save the status update for this URL so we know to show it next time
     db.execute('INSERT INTO health_checks (tstamp, status_code, headers, url_id) VALUES (NOW(), :status_code, :headers, :url_id)', {
@@ -40,7 +43,8 @@ def scan(id):
     db.commit()
 
     return jsonify({
-        "status_code": res.status_code
+        "status_code": res.status_code,
+        "last_update": now.strftime("%m/%d/%Y %H:%M:%S")
     })
 
 # need to add a URL

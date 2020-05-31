@@ -17,10 +17,15 @@
     </thead>
     <tbody>
         {% for url in urls %}
-        <tr id="row-{{ url["id"] }}" class="url-row" data-id="{{ url['id'] }}">
-            <td>{{ url["url"] }}</td>
-            <td><span id="health-{{ url["id"] }}" class="health health-{{ url["status_code"] }}">{{ url["status_code"] }}</span></td>
-            <td>{{ url["last_update"] }}</td>
+        <tr id="row-{{ url['id'] }}" class="url-row" data-id="{{ url['id'] }}">
+            <td>
+                <p>{{ url["url"] }}</p>
+                {%if (url["status_code"] == 301 or url["status_code"] == 302) %}
+                    <p><i class="fa fa-arrow-right"></i> {{ url["headers"] }}</p>
+                {% endif %}
+            </td>
+            <td><span id="health-{{ url['id'] }}" class="health health-{{ url["status_code"] }}">{{ url["status_code"] }}</span></td>
+            <td id="last-update-{{ url['id'] }}">{{ url["last_update_formatted"] }}</td>
             <td class="scan">
                 <button class="update-health" data-id="{{ url['id'] }}" data-url="{{ url['url'] }}" >update</button>
                 <i class="fa fa-refresh fa-spin fa-2x fa-fw"></i>
