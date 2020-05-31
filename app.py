@@ -97,4 +97,4 @@ def install():
 # re-usable query for getting all of the URLS
 def get_urls():
     # do not understand why this requires three quotes :(
-    return db.execute("""SELECT id, url, headers, status_code, last_update, TO_CHAR(last_update, 'MM/DD/YYYY HH24:MI:SS') last_update_formatted FROM urls ORDER BY last_update DESC""").fetchall()
+    return db.execute("""SELECT id, url, headers, status_code, last_update, TO_CHAR(last_update  - INTERVAL '4 hours', 'MM/DD/YYYY HH24:MI:SS') last_update_formatted FROM urls ORDER BY last_update DESC""").fetchall()
