@@ -1,5 +1,6 @@
 var tim
 var running = false
+var apiUrl = 'http://127.0.0.1:5000/api'
 
 document.addEventListener("DOMContentLoaded", function(){
     
@@ -38,7 +39,7 @@ function removeUrl(e) {
         return;
     var id = e.target.dataset.id
     document.getElementById('row-' + id).remove()
-    fetch('http://127.0.0.1:5000/api/url/' + id, {method: 'DELETE'})
+    fetch(`${apiUrl}/url/${id}`, {method: 'DELETE'})
         .then(result => result.json())
         .then(data => {
             console.log(data)
@@ -74,7 +75,7 @@ function checkAll() {
 
 function checkHealth(id) {
     document.getElementById('row-' + id).className = 'scanning'
-    return fetch('http://127.0.0.1:5000/api/url/' + id + '/scan')
+    return fetch(`${apiUrl}/url/${id}/scan`)
         .then(response => response.json())
         .then(data => {
             // update status
