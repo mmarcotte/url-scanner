@@ -1,5 +1,6 @@
 import os
 import requests
+from requests.exceptions import ConnectionError
 import json
 from datetime import datetime
 from flask import Flask, render_template, request, jsonify
@@ -28,7 +29,11 @@ def scan(id):
     headers = {
         'User-Agent': 'My User Agent 1.0'
     }
-    res = requests.get(row.url, headers=headers, allow_redirects=False) # allow_redirects=False to catch 30x status_codes
+    try: 
+        res = requests.get(row.url, headers=headers, allow_redirects=False) # allow_redirects=False to catch 30x status_codes
+    except ConnectionError:
+        return jsonify({"error": "URL call completely failed"}), 422
+        
 
     # save the status update for the history
     db.execute('INSERT INTO health_checks (tstamp, status_code, headers, url_id) VALUES (NOW(), :status_code, :headers, :url_id)', {
@@ -56,12 +61,27 @@ def scan(id):
 
     return jsonify(response)
 
-@app.route('/api/url/<int:id>', methods=['DELETE'])
+@app.route('/api/url/<int:id>', methods=['DELETE', 'PUT'])
 def url_api(id):
-    if request.method == 'DELETE':
+    if db.execute('SELECT url FROM urls WHERE id = :id', {"id": id}).rowcount == 0:
+        return jsonify({"error": "Invalid url_id"}), 422
+
+    if request.method == 'PUT':
+        # Update the URL
+        data = request.get_json()
+        url = data['url']
+        if db.execute('SELECT url FROM urls WHERE url = :url', {"url": url}).rowcount != 0:
+            db.execute('DELETE FROM health_checks WHERE url_id = :url_id', {"url_id": id})
+            db.execute('DELETE FROM urls WHERE id = :id', {"id": id})
+            db.commit()
+            return jsonify({"message": "New URL is a dupe of an existing URL; removing old URL"})
+
+        db.execute('UPDATE urls SET url = :url WHERE id = :id', {"url": url, "id": id})
+        db.commit()
+        return jsonify({"message": "URL updated"})
+
+    if request.method == 'DELETE': 
         # Make sure url exists
-        if db.execute('SELECT url FROM urls WHERE id = :id', {"id": id}).rowcount == 0:
-            return jsonify({"error": "Invalid url_id"}), 422
 
         # Remove URL from DB
         db.execute('DELETE FROM health_checks WHERE url_id = :url_id', {"url_id": id})
