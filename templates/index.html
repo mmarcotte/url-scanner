@@ -32,7 +32,7 @@
             <td>
                 <p>{{ url["url"] }}</p>
                 {%if (url["status_code"] == 301 or url["status_code"] == 302) %}
-                    <p><i class="fa fa-arrow-right"></i> {{ url["headers"]["Location"] }}</p>
+                    <p><i class="fa fa-arrow-right"></i> <a href="#" class='js-update' data-id="{{ url['id'] }}">{{ url["headers"]["Location"] }}</a></p>
                 {% endif %}
             </td>
             <td><span id="health-{{ url['id'] }}" class="health health-{{ url['status_code'] }}">{{ url["status_code"] }}</span></td>

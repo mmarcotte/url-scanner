@@ -31,7 +31,37 @@ document.addEventListener("DOMContentLoaded", function(){
     for(var i = 0; i < deleteButtons.length; i++) {
         deleteButtons[i].addEventListener('click', removeUrl)
     }
+
+    var updateLinks = document.getElementsByClassName('js-update')
+    for(var i = 0; i < updateLinks.length; i++) {
+        updateLinks[i].addEventListener('click', updateUrl)
+    }
 });
+
+function updateUrl(e) {
+    e.preventDefault()
+    var id = e.target.dataset.id
+    var url = e.target.innerHTML
+    var opts = {
+        method: 'PUT',
+        headers: {
+            "Content-Type": 'application/json',
+        },
+        body: JSON.stringify({ url })
+    }
+
+
+    fetch(`${apiUrl}/url/${id}`, opts)
+        .then(result => result.json())
+        .then(data => {
+            console.log(data)
+            // var messageContainer = document.getElementById('message')
+            // messageContainer.classList.remove('hidden')
+        })
+        .catch(err => {})
+
+
+}
 
 function removeUrl(e) {
     e.preventDefault()
