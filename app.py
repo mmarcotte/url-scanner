@@ -70,23 +70,17 @@ def url_api(id):
         # Update the URL
         data = request.get_json()
         url = data['url']
-        if db.execute('SELECT url FROM urls WHERE url = :url', {"url": url}).rowcount != 0:
-            db.execute('DELETE FROM health_checks WHERE url_id = :url_id', {"url_id": id})
-            db.execute('DELETE FROM urls WHERE id = :id', {"id": id})
-            db.commit()
-            return jsonify({"message": "New URL is a dupe of an existing URL; removing old URL"})
+        if db.execute('SELECT url FROM urls WHERE url = :url AND id != :id', {"url": url, "id": id}).rowcount != 0:
+            delete_url(id)
+            return jsonify({"message": "New URL is a dupe of an existing URL; removing old URL", "updated": 0, "removed": 1})
 
         db.execute('UPDATE urls SET url = :url WHERE id = :id', {"url": url, "id": id})
         db.commit()
-        return jsonify({"message": "URL updated"})
+        return jsonify({"message": "URL updated", "updated_url": url, "updated": 1})
 
     if request.method == 'DELETE': 
-        # Make sure url exists
-
         # Remove URL from DB
-        db.execute('DELETE FROM health_checks WHERE url_id = :url_id', {"url_id": id})
-        db.execute('DELETE FROM urls WHERE id = :id', {"id": id})
-        db.commit()
+        delete_url(id)
         return jsonify({"message": "URL deleted"})
 
 @app.route('/add', methods=["POST"])
@@ -118,3 +112,8 @@ def install():
 def get_urls():
     # do not understand why this requires three quotes :(
     return db.execute("""SELECT id, url, headers, status_code, last_update, TO_CHAR(last_update  - INTERVAL '4 hours', 'MM/DD/YYYY HH24:MI:SS') last_update_formatted FROM urls ORDER BY last_update DESC""").fetchall()
+
+def delete_url(id):
+    db.execute('DELETE FROM health_checks WHERE url_id = :url_id', {"url_id": id})
+    db.execute('DELETE FROM urls WHERE id = :id', {"id": id})
+    db.commit()

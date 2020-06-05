@@ -54,6 +54,13 @@ function updateUrl(e) {
     fetch(`${apiUrl}/url/${id}`, opts)
         .then(result => result.json())
         .then(data => {
+            // let's update the URL for this row 
+            if(data.updated && typeof data.updated_url === 'string') {
+                document.getElementById('url-' + id).innerHTML = data.updated_url;
+            } else if(data.removed) {
+                document.getElementById('row-' + id).remove()
+            }
+
             console.log(data)
             // var messageContainer = document.getElementById('message')
             // messageContainer.classList.remove('hidden')

@@ -14,7 +14,7 @@ main {
   background-color: green;
   color: #fff; }
 
-.health-404 {
+.health-404, .health-403, .health-500, .health-502 {
   background-color: red;
   color: #fff; }
 
@@ -41,6 +41,12 @@ tr.scanning td button.update-health {
   display: none; }
 
 tr.scanning td div.loading {
+  display: block; }
+
+.alert {
+  display: none; }
+
+.alert.active {
   display: block; }
 
 /*# sourceMappingURL=styles.css.map */

@@ -4,11 +4,10 @@
 
 <h2>Current URLs</h2>
 
-{% if message %}
-<div class="alert alert-primary" role="alert">
+
+<div class="alert alert-primary {% if message %}active{% endif %}" role="alert">
     {{ message }}
 </div>
-{% endif %}
 
 <div class="form-group">
     <button id="scan-all" class="btn btn-primary">
@@ -30,7 +29,7 @@
         {% for url in urls %}
         <tr id="row-{{ url['id'] }}" class="url-row" data-id="{{ url['id'] }}">
             <td>
-                <p>{{ url["url"] }}</p>
+                <p id="url-{{ url['id'] }}">{{ url["url"] }}</p>
                 <p id="redirect-300-{{ url['id'] }}" class="redirect-300 {%if (url["status_code"] == 301 or url["status_code"] == 302) %}active{% endif %}">
                     <i class="fa fa-arrow-right"></i> 
                     <a href="#" id="redirect-url-{{ url['id'] }}" class='js-update' data-id="{{ url['id'] }}">{{ url["headers"]["Location"] }}</a>
