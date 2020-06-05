@@ -1,0 +1,44 @@
+html {
+    box-sizing: border-box;
+}
+
+main {
+    margin: 1rem;
+}
+
+.health { 
+    padding: 0.3em 1em;
+    margin: 1px;
+    display: inline-block;
+    border-radius: 2px;
+}
+.health-200 { 
+    background-color: green; color: #fff; 
+}
+.health-404 { background-color: red; color: #fff; }
+.health-302, .health-301, .health-307 { 
+    background-color: gold; color: #222222 
+}
+.redirect-300 { 
+    display: none
+}
+.redirect-300.active {
+    display: block;
+}
+
+
+.table td { vertical-align: middle; }
+
+.scanning {
+    background-color: #cccccc;
+}
+
+.loading {
+    display: none;
+}
+tr.scanning td button.update-health {
+    display: none;
+}
+tr.scanning td div.loading {
+    display: block;
+}

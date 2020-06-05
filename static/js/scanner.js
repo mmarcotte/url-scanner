@@ -117,6 +117,14 @@ function checkHealth(id) {
             var tstamp = document.getElementById('last-update-' + id)
             tstamp.innerHTML = data.last_update
 
+            // update possible redirect
+            if(data.redirect_url) {
+                document.getElementById('redirect-300-' + id).classList.add('active')
+                document.getElementById('redirect-url-' + id).innerHTML = data.redirect_url;
+            } else {
+                document.getElementById('redirect-300-' + id).classList.remove('active')
+            }
+
             document.getElementById('row-' + id).className = 'ready'
         })
 }

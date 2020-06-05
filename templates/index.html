@@ -31,9 +31,10 @@
         <tr id="row-{{ url['id'] }}" class="url-row" data-id="{{ url['id'] }}">
             <td>
                 <p>{{ url["url"] }}</p>
-                {%if (url["status_code"] == 301 or url["status_code"] == 302) %}
-                    <p><i class="fa fa-arrow-right"></i> <a href="#" class='js-update' data-id="{{ url['id'] }}">{{ url["headers"]["Location"] }}</a></p>
-                {% endif %}
+                <p id="redirect-300-{{ url['id'] }}" class="redirect-300 {%if (url["status_code"] == 301 or url["status_code"] == 302) %}active{% endif %}">
+                    <i class="fa fa-arrow-right"></i> 
+                    <a href="#" id="redirect-url-{{ url['id'] }}" class='js-update' data-id="{{ url['id'] }}">{{ url["headers"]["Location"] }}</a>
+                </p>
             </td>
             <td><span id="health-{{ url['id'] }}" class="health health-{{ url['status_code'] }}">{{ url["status_code"] }}</span></td>
             <td id="last-update-{{ url['id'] }}">{{ url["last_update_formatted"] }}</td>
