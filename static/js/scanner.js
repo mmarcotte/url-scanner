@@ -117,8 +117,13 @@ function checkHealth(id) {
         .then(data => {
             // update status
             var status = document.getElementById('health-' + id)
-            status.innerHTML = data.status_code
-            status.className = 'health health-' + data.status_code
+            if(typeof data.error === 'string' && (data.error.match(/CERTIFICATE_VERIFY_FAILED/) || data.error.match(/SSLError/) || data.error.match(/HTTPSConnectionPool/) || data.error.match(/HTTPConnectionPool/))) { 
+                status.innerHTML = ''
+                status.className = 'health health-ssl-failed';
+            } else {
+                status.innerHTML = data.status_code
+                status.className = 'health health-' + data.status_code
+            }
 
             // update timestamp
             var tstamp = document.getElementById('last-update-' + id)

@@ -19,6 +19,16 @@ main {
 .health-302, .health-301, .health-307 { 
     background-color: gold; color: #222222 
 }
+.health-ssl-failed, .health-0 {
+    background-color: transparent;
+    color: red;
+}
+.health-ssl-failed:before, .health-0:before {
+    font-family: FontAwesome;
+    font-size: 2em;
+    content: "\f05e";
+    color: red;
+}
 .redirect-300 { 
     display: none
 }

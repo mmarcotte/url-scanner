@@ -18,9 +18,21 @@ def index():
     urls = get_urls()
     return render_template("index.html", urls=urls)
 
+# get the urls with the specified status_code
+@app.route("/api/url/status/<int:status_code>")
+def get_urls_with_status(status_code):
+    rows = db.execute("""SELECT id, url, headers, status_code, last_update, TO_CHAR(last_update  - INTERVAL '4 hours', 'MM/DD/YYYY HH24:MI:SS') last_update_formatted FROM urls WHERE status_code = :status_code ORDER BY last_update ASC""", {
+        "status_code": status_code
+    }).fetchall()
+    urls = []
+    for row in rows:
+        urls.append(row["url"])
+    return jsonify(urls)
+
 @app.route("/api/url/<int:id>/scan")
 def scan(id):
     # get the URL, and make sure it exists
+    now = datetime.now()
     row = db.execute('SELECT url FROM urls WHERE id = :id', {"id": id}).fetchone()
     if row is None:
         return jsonify({"error": "Could not locate URL"}), 422
@@ -31,8 +43,18 @@ def scan(id):
     }
     try: 
         res = requests.get(row.url, headers=headers, allow_redirects=False) # allow_redirects=False to catch 30x status_codes
-    except ConnectionError:
-        return jsonify({"error": "URL call completely failed"}), 422
+    except ConnectionError as errc:
+        print("Error connecting: ", errc)
+        db.execute('UPDATE urls SET status_code = :status_code, last_update = NOW() WHERE id = :id', {
+            "status_code": 0,
+            "id": id
+        })
+        db.commit()
+        return jsonify({
+            "error": str(errc), 
+            "url": row.url,
+            "last_update": now.strftime("%m/%d/%Y %H:%M:%S")
+        }), 422
         
 
     # save the status update for the history
@@ -51,7 +73,6 @@ def scan(id):
     db.commit()
 
     # respond with some helpful json
-    now = datetime.now()
     response = {
         "status_code": res.status_code,
         "last_update": now.strftime("%m/%d/%Y %H:%M:%S")
@@ -111,7 +132,7 @@ def install():
 # re-usable query for getting all of the URLS
 def get_urls():
     # do not understand why this requires three quotes :(
-    return db.execute("""SELECT id, url, headers, status_code, last_update, TO_CHAR(last_update  - INTERVAL '4 hours', 'MM/DD/YYYY HH24:MI:SS') last_update_formatted FROM urls ORDER BY last_update DESC""").fetchall()
+    return db.execute("""SELECT id, url, headers, status_code, last_update, TO_CHAR(last_update  - INTERVAL '4 hours', 'MM/DD/YYYY HH24:MI:SS') last_update_formatted FROM urls ORDER BY last_update ASC""").fetchall()
 
 def delete_url(id):
     db.execute('DELETE FROM health_checks WHERE url_id = :url_id', {"url_id": id})

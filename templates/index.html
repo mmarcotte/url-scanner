@@ -35,7 +35,13 @@
                     <a href="#" id="redirect-url-{{ url['id'] }}" class='js-update' data-id="{{ url['id'] }}">{{ url["headers"]["Location"] }}</a>
                 </p>
             </td>
-            <td><span id="health-{{ url['id'] }}" class="health health-{{ url['status_code'] }}">{{ url["status_code"] }}</span></td>
+            <td>
+                <span id="health-{{ url['id'] }}" class="health health-{{ url['status_code'] }}">
+                    {% if url["status_code"] != 0 %}
+                        {{ url['status_code'] }}
+                    {% endif %}
+                </span>
+            </td>
             <td id="last-update-{{ url['id'] }}">{{ url["last_update_formatted"] }}</td>
             <td class="scan centered">
                 <button class="btn btn-secondary update-health" data-id="{{ url['id'] }}" data-url="{{ url['url'] }}">
