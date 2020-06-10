@@ -29,6 +29,14 @@ def get_urls_with_status(status_code):
         urls.append(row["url"])
     return jsonify(urls)
 
+@app.route("/api/url/status")
+def get_status_codes():
+    rows = db.execute("SELECT status_code, COUNT(*) AS count FROM urls GROUP BY status_code ORDER BY count DESC").fetchall()
+    results = []
+    for row in rows:
+        results.append({"status_code": row["status_code"], "count": row["count"]})
+    return jsonify(results)
+
 @app.route("/api/url/<int:id>/scan")
 def scan(id):
     # get the URL, and make sure it exists
