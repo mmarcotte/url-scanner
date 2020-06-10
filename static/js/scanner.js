@@ -13,6 +13,8 @@ document.addEventListener("DOMContentLoaded", function(){
       });
     }
 
+    document.getElementById('button-cleanup').addEventListener('click', cleanupDatabase)
+
     document.getElementById('scan-all').addEventListener('click', function(e) {
         e.preventDefault()
         if (running) {
@@ -139,4 +141,24 @@ function checkHealth(id) {
 
             document.getElementById('row-' + id).className = 'ready'
         })
+}
+
+function updateMessage(message) {
+    var messageBox = document.getElementById('message-box')
+    messageBox.classList.add('active')
+    messageBox.innerHTML = message
+}
+function cleanupDatabase(e) {
+    e.preventDefault() // don't submit any forms now... 
+
+    if(!confirm('Are you sure you want to remove all of the records from the health_checks table?'))
+        return
+
+    fetch(`${apiUrl}/cleanup?confirmed=1`, { method: 'DELETE'})
+        .then(result => result.json())
+        .then(data => {
+            updateMessage(data.message)
+            console.log(data)
+        })
+        .catch(err => console.log(err))
 }

@@ -1,3 +1,10 @@
+#
+# @todo
+# - give api routes perhaps some parameters (like what fields for the status report)
+# 
+# 
+# 
+
 import os
 import requests
 from requests.exceptions import ConnectionError
@@ -38,9 +45,7 @@ def scan(id):
         return jsonify({"error": "Could not locate URL"}), 422
 
     # make the call, and supply a friendly user agent
-    headers = {
-        'User-Agent': 'My User Agent 1.0'
-    }
+    headers = { 'User-Agent': 'My User Agent 1.0' }
     try: 
         res = requests.get(row.url, headers=headers, allow_redirects=False) # allow_redirects=False to catch 30x status_codes
     except ConnectionError as errc:
@@ -58,11 +63,11 @@ def scan(id):
         
 
     # save the status update for the history
-    db.execute('INSERT INTO health_checks (tstamp, status_code, headers, url_id) VALUES (NOW(), :status_code, :headers, :url_id)', {
-        "status_code": res.status_code,
-        "headers": json.dumps(dict(res.headers)),
-        "url_id": id
-    })
+    # db.execute('INSERT INTO health_checks (tstamp, status_code, headers, url_id) VALUES (NOW(), :status_code, :headers, :url_id)', {
+    #     "status_code": res.status_code,
+    #     "headers": json.dumps(dict(res.headers)),
+    #     "url_id": id
+    # })
 
     # update our urls table with the latest
     db.execute('UPDATE urls SET status_code = :status_code, headers = :headers, last_update = NOW() WHERE id = :id', {
@@ -128,6 +133,14 @@ def install():
 
     # run the commands
     return render_template("install.html", sqlCommands=sqlCommands)
+
+@app.route('/api/cleanup', methods=["DELETE"])
+def cleanup():
+    sql = 'TRUNCATE health_checks'
+    db.execute(sql)
+    db.commit()
+    return jsonify({"message":"Health Checks database has been purged"})
+
 
 # re-usable query for getting all of the URLS
 def get_urls():

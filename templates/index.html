@@ -5,13 +5,16 @@
 <h2>Current URLs</h2>
 
 
-<div class="alert alert-primary {% if message %}active{% endif %}" role="alert">
+<div id="message-box" class="alert alert-primary {% if message %}active{% endif %}" role="alert">
     {{ message }}
 </div>
 
 <div class="form-group">
     <button id="scan-all" class="btn btn-primary">
         Scan All
+    </button>
+    <button id="button-cleanup" class="btn btn-danger">
+        Cleanup
     </button>
 </div>
 
