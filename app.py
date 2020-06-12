@@ -47,7 +47,9 @@ def scan(id):
 
     # make the call, and supply a friendly user agent
     headers = {
-        'User-Agent': 'My User Agent 1.0'
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36',
+        'Cache-Control': 'no-cache',
+        'Referer': 'https://www.google.com'
     }
     try: 
         res = requests.get(row.url, headers=headers, allow_redirects=False) # allow_redirects=False to catch 30x status_codes
