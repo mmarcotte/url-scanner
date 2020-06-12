@@ -36,6 +36,14 @@ def get_urls_with_status(status_code):
         urls.append(row["url"])
     return jsonify(urls)
 
+@app.route("/api/url/status")
+def get_status_codes():
+    rows = db.execute("SELECT status_code, COUNT(*) AS count FROM urls GROUP BY status_code ORDER BY count DESC").fetchall()
+    results = []
+    for row in rows:
+        results.append({"status_code": row["status_code"], "count": row["count"]})
+    return jsonify(results)
+
 @app.route("/api/url/<int:id>/scan")
 def scan(id):
     # get the URL, and make sure it exists
@@ -45,7 +53,11 @@ def scan(id):
         return jsonify({"error": "Could not locate URL"}), 422
 
     # make the call, and supply a friendly user agent
-    headers = { 'User-Agent': 'My User Agent 1.0' }
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36',
+        'Cache-Control': 'no-cache',
+        'Referer': 'https://www.google.com'
+    }
     try: 
         res = requests.get(row.url, headers=headers, allow_redirects=False) # allow_redirects=False to catch 30x status_codes
     except ConnectionError as errc:
@@ -60,14 +72,7 @@ def scan(id):
             "url": row.url,
             "last_update": now.strftime("%m/%d/%Y %H:%M:%S")
         }), 422
-        
 
-    # save the status update for the history
-    # db.execute('INSERT INTO health_checks (tstamp, status_code, headers, url_id) VALUES (NOW(), :status_code, :headers, :url_id)', {
-    #     "status_code": res.status_code,
-    #     "headers": json.dumps(dict(res.headers)),
-    #     "url_id": id
-    # })
 
     # update our urls table with the latest
     db.execute('UPDATE urls SET status_code = :status_code, headers = :headers, last_update = NOW() WHERE id = :id', {
