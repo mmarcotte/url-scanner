@@ -1,3 +1,10 @@
+#
+# @todo
+# - give api routes perhaps some parameters (like what fields for the status report)
+# 
+# 
+# 
+
 import os
 import requests
 from requests.exceptions import ConnectionError
@@ -65,14 +72,7 @@ def scan(id):
             "url": row.url,
             "last_update": now.strftime("%m/%d/%Y %H:%M:%S")
         }), 422
-        
 
-    # save the status update for the history
-    db.execute('INSERT INTO health_checks (tstamp, status_code, headers, url_id) VALUES (NOW(), :status_code, :headers, :url_id)', {
-        "status_code": res.status_code,
-        "headers": json.dumps(dict(res.headers)),
-        "url_id": id
-    })
 
     # update our urls table with the latest
     db.execute('UPDATE urls SET status_code = :status_code, headers = :headers, last_update = NOW() WHERE id = :id', {
@@ -138,6 +138,14 @@ def install():
 
     # run the commands
     return render_template("install.html", sqlCommands=sqlCommands)
+
+@app.route('/api/cleanup', methods=["DELETE"])
+def cleanup():
+    sql = 'TRUNCATE health_checks'
+    db.execute(sql)
+    db.commit()
+    return jsonify({"message":"Health Checks database has been purged"})
+
 
 # re-usable query for getting all of the URLS
 def get_urls():
